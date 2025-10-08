@@ -88,8 +88,8 @@ int32_t parseInt8b(const char *input)
 		' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',
 		' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',
 		' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '
-				// Faster without \0 above
-				// so forcefully add \0 below instead after memcpy()
+		// Faster without \0 above
+		// so forcefully add \0 below instead after memcpy()
 	};
 
 	const size_t len0 = strlen(input);
@@ -110,7 +110,7 @@ int32_t parseInt8b(const char *input)
 	const uint32_t low  = (uint32_t) table16[idx2];
 	const uint32_t val  = (high * 10000) + low;
 
-	printf("LEN0[%u], LEN[%u], INPUT[%s], BUFFER[%s], IDX1[%u], IDX2[%u], HIGH[%u], LOW[%u], VAL[%u]\n", len, len0, input, buffer, idx1, idx2, high, low, val);
+	//printf("LEN0[%u], LEN[%u], INPUT[%s], BUFFER[%s], IDX1[%u], IDX2[%u], HIGH[%u], LOW[%u], VAL[%u]\n", len, len0, input, buffer, idx1, idx2, high, low, val);
 
 	return val;
 }
