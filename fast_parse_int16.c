@@ -95,6 +95,9 @@ int32_t parseInt8b(const char *input)
 	// Right-align copy to last 8 positions
 	memcpy(&buffer[32-len], input, len);
 
+	// Ensure buffer is NUL terminated
+	buffer[31] = 0;
+
 	printf("INPUT[%s], BUFFER[%s]\n", input, buffer);
 
 	// Now parse the last 8 bytes
