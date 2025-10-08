@@ -50,7 +50,7 @@ int parse_4digits(const char *s)
 
 void init_table16() {
 	table16 = (int16_t *) calloc(TABLE_SIZE, sizeof(uint16_t));
-	if (!table) {
+	if (!table16) {
 		fprintf(stderr, "calloc failed\n");
 		exit(1);
 	}
@@ -75,7 +75,7 @@ void init_table16() {
 		table16[idx] = (int16_t) parse_4digits(key);
 	}
 
-	printf("Optimized table initialized (only valid chars).\n");
+	printf("Optimized table16 initialized (only valid chars).\n");
 }
 
 int32_t parseInt8b(const char *str)
