@@ -82,10 +82,12 @@ void init_table16() {
 
 int32_t parseInt8b(const char *input)
 {
-	char buffer[32] = {0};
-
-	// fill with spaces
-	memset(buffer, ' ', sizeof(buffer));
+	char buffer[32] = {
+		' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',
+		' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',
+		' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',
+		' ', ' ', ' ', ' ', ' ', ' ', ' ', 0
+	};
 
 	size_t len = strlen(input);
 	if (len > 8) len = 8;  // truncate to 8 max
