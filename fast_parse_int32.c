@@ -48,7 +48,7 @@ int parse_4digits(const char *s)
 	return digits_found ? val : 0;
 }
 
-void init_table32()
+void init_table32_slow()
 {
 	// ~4 GiB RAM
 	table32 = (int32_t *) calloc(TABLE_SIZE, sizeof(int32_t));
@@ -70,10 +70,41 @@ void init_table32()
 		key[2] = (char)((i >> 16) & 0xFF);
 		key[3] = (char)((i >> 24) & 0xFF);
 
-		table32[i] = parse_4digits(key);
+		table32[i] = (int32_t) parse_4digits(key);
 	}
 
 	printf("Table initialized.\n");
+}
+
+void init_table32()
+{
+	table32 = (int32_t *) calloc(TABLE_SIZE, sizeof(uint32_t));
+	if (!table) {
+		fprintf(stderr, "calloc failed\n");
+		exit(1);
+	}
+
+	const char* ALLOWED_CHARS = " +0123456789";
+	const int   ALLOWED_COUNT = 12;
+
+	char key[5] = {0};
+
+	// Iterate only allowed chars per position (12^4 = 20,736 entries)
+	for (int i0 = 0; i0 < ALLOWED_COUNT; ++i0)
+	for (int i1 = 0; i1 < ALLOWED_COUNT; ++i1)
+	for (int i2 = 0; i2 < ALLOWED_COUNT; ++i2)
+	for (int i3 = 0; i3 < ALLOWED_COUNT; ++i3)
+	{
+		key[0] = ALLOWED_CHARS[i0];
+		key[1] = ALLOWED_CHARS[i1];
+		key[2] = ALLOWED_CHARS[i2];
+		key[3] = ALLOWED_CHARS[i3];
+
+		const uint32_t idx = *(uint32_t *)key;
+		table32[idx] = (int32_t) parse_4digits(key);
+	}
+
+	printf("Optimized table initialized (only valid chars).\n");
 }
 
 int32_t parseInt8a(const char *str)

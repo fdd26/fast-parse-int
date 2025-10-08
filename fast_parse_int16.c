@@ -72,7 +72,7 @@ void init_table16() {
 		key[3] = ALLOWED_CHARS[i3];
 
 		const uint32_t idx = *(uint32_t *)key;
-		table[idx] = parse_4digits(key);
+		table16[idx] = (int16_t) parse_4digits(key);
 	}
 
 	printf("Optimized table initialized (only valid chars).\n");
