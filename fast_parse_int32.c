@@ -79,7 +79,7 @@ void init_table32_slow()
 void init_table32()
 {
 	table32 = (int32_t *) calloc(TABLE_SIZE, sizeof(uint32_t));
-	if (!table) {
+	if (!table32) {
 		fprintf(stderr, "calloc failed\n");
 		exit(1);
 	}
@@ -104,7 +104,7 @@ void init_table32()
 		table32[idx] = (int32_t) parse_4digits(key);
 	}
 
-	printf("Optimized table initialized (only valid chars).\n");
+	printf("Optimized table32 initialized (only valid chars).\n");
 }
 
 int32_t parseInt8a(const char *str)
