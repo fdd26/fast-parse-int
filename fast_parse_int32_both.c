@@ -4,9 +4,10 @@
 #include <string.h>
 #include <ctype.h>
 
-#define TABLE_SIZE (1ULL << 32) // 256^4
+#define TABLE_SIZE (1ULL << 32) // 256^4 entries
 
-static int32_t *table = NULL;
+static int16_t *table16 = NULL;
+static int32_t *table32 = NULL;
 
 // Parse a 4-character string to int, with rules:
 // skip leading spaces, optional '+', then digits, stop at non-digit
@@ -48,12 +49,12 @@ int parse_4digits(const char *s)
 	return digits_found ? val : 0;
 }
 
-void init_table()
+void init_table32()
 {
 	// ~4 GiB RAM
-	table = calloc(TABLE_SIZE, sizeof(int32_t));
+	table32 = (int32_t *) calloc(TABLE_SIZE, sizeof(int32_t));
 
-	if (!table)
+	if (!table32)
 	{
 		fprintf(stderr, "calloc failed\n");
 		exit(1);
@@ -70,26 +71,69 @@ void init_table()
 		key[2] = (char)((i >> 16) & 0xFF);
 		key[3] = (char)((i >> 24) & 0xFF);
 
-		table[i] = parse_4digits(key);
+		table32[i] = parse_4digits(key);
 	}
 
 	printf("Table initialized.\n");
 }
 
-int32_t parseInt8(const char *str)
+void init_table16() {
+	table16 = (int16_t *) calloc(TABLE_SIZE, sizeof(uint16_t));
+	if (!table) {
+		fprintf(stderr, "calloc failed\n");
+		exit(1);
+	}
+
+	const char* ALLOWED_CHARS = " +0123456789";
+	const int   ALLOWED_COUNT = 12;
+
+	char key[5] = {0};
+
+	// Iterate only allowed chars per position (12^4 = 20,736 entries)
+	for (int i0 = 0; i0 < ALLOWED_COUNT; ++i0)
+	for (int i1 = 0; i1 < ALLOWED_COUNT; ++i1)
+	for (int i2 = 0; i2 < ALLOWED_COUNT; ++i2)
+	for (int i3 = 0; i3 < ALLOWED_COUNT; ++i3)
+	{
+		key[0] = ALLOWED_CHARS[i0];
+		key[1] = ALLOWED_CHARS[i1];
+		key[2] = ALLOWED_CHARS[i2];
+		key[3] = ALLOWED_CHARS[i3];
+
+		const uint32_t idx = *(uint32_t *)key;
+		table[idx] = parse_4digits(key);
+	}
+
+	printf("Optimized table initialized (only valid chars).\n");
+}
+
+int32_t parseInt8a(const char *str)
 {
 	// TODO check length
 	const uint32_t idx1 = *(const uint32_t *)&str[0];
 	const uint32_t idx2 = *(const uint32_t *)&str[4];
 
-	const int32_t high = table[idx1];
-	const int32_t low  = table[idx2];
-	return (high * 10000) + low;
+	const int32_t high = table32[idx1];
+	const int32_t low  = table32[idx2];
+	return (int32_t)(high * 10000) + (int32_t)low;
+}
+
+
+int32_t parseInt8b(const char *str)
+{
+	// TODO check length
+	const uint32_t idx1 = *(const uint32_t *)&str[0];
+	const uint32_t idx2 = *(const uint32_t *)&str[4];
+
+	const int16_t high = table16[idx1];
+	const int16_t low  = table16[idx2];
+	return (int32_t)(high * 10000) + (int32_t)low;
 }
 
 int main()
 {
-	init_table();
+	init_table32();
+	init_table16();
 
 	const char *tests[] = {
 		"00000000", // 0
@@ -115,10 +159,12 @@ int main()
 			input[j] = tests[i][j];
 		}
 
-		const int32_t val = parseInt8(input);
-		printf("parseInt8(\"%s\") = %d\n", tests[i], val);
+		const int32_t vala = parseInt8a(input);
+		const int32_t valb = parseInt8b(input);
+		printf("parseInt8(\"%s\") = %d = %d\n", tests[i], vala, valb);
 	}
 
-	free(table);
+	free(table32);
+	free(table16);
 	return 0;
 }
