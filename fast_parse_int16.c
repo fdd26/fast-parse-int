@@ -1,3 +1,5 @@
+// Tested in godbolt
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
@@ -55,16 +57,16 @@ void init_table16() {
 		exit(1);
 	}
 
-	const char* ALLOWED_CHARS = " +0123456789";
-	const int   ALLOWED_COUNT = 12;
+	const char ALLOWED_CHARS[] = { '+', '-', ' ', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 0 };
+	const int  ALLOWED_COUNT = sizeof(ALLOWED_CHARS);
 
 	char key[5] = {0};
 
 	// Iterate only allowed chars per position (12^4 = 20,736 entries)
 	for (int i0 = 0; i0 < ALLOWED_COUNT; ++i0)
-	for (int i1 = 0; i1 < ALLOWED_COUNT; ++i1)
-	for (int i2 = 0; i2 < ALLOWED_COUNT; ++i2)
-	for (int i3 = 0; i3 < ALLOWED_COUNT; ++i3)
+	for (int i1 = 2; i1 < ALLOWED_COUNT; ++i1)
+	for (int i2 = 2; i2 < ALLOWED_COUNT; ++i2)
+	for (int i3 = 2; i3 < ALLOWED_COUNT; ++i3)
 	{
 		key[0] = ALLOWED_CHARS[i0];
 		key[1] = ALLOWED_CHARS[i1];
