@@ -18,7 +18,7 @@ int parse_4digits(const char *s)
 	int i = 0;
 
 	// skip leading spaces
-	while ((i < 4) && isspace((unsigned char)s[i]))
+	while ((i < 4) && s[i] && (s[i] <= ' '))
 	{ ++i; }
 
 	// optional '+'
@@ -57,6 +57,7 @@ void init_table16() {
 		exit(1);
 	}
 
+	// Faster without static constants
 	const char ALLOWED_CHARS[] = { '+', ' ', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 0 };
 	const int  ALLOWED_COUNT = sizeof(ALLOWED_CHARS);
 
@@ -87,8 +88,8 @@ int32_t parseInt8b(const char *input)
 		' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',
 		' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',
 		' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '
-		// Faster without \0 above
-		// so forcefully add \0 below instead after memcpy()
+				// Faster without \0 above
+				// so forcefully add \0 below instead after memcpy()
 	};
 
 	const size_t len0 = strlen(input);
@@ -109,7 +110,7 @@ int32_t parseInt8b(const char *input)
 	const uint32_t low  = (uint32_t) table16[idx2];
 	const uint32_t val  = (high * 10000) + low;
 
-	//printf("LEN0[%u], LEN[%u], INPUT[%s], BUFFER[%s], IDX1[%u], IDX2[%u], HIGH[%u], LOW[%u], VAL[%u]\n", len, len0, input, buffer, idx1, idx2, high, low, val);
+	printf("LEN0[%u], LEN[%u], INPUT[%s], BUFFER[%s], IDX1[%u], IDX2[%u], HIGH[%u], LOW[%u], VAL[%u]\n", len, len0, input, buffer, idx1, idx2, high, low, val);
 
 	return val;
 }
@@ -118,7 +119,7 @@ int main()
 {
 	init_table16();
 
-	const char *tests[] = {
+	static const char *tests[] = {
 		"00000000", // 0
 		"00000001", // 1
 		"00001234", // 1234
