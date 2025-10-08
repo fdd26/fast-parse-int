@@ -107,15 +107,26 @@ void init_table32()
 	printf("Optimized table32 initialized (only valid chars).\n");
 }
 
-int32_t parseInt8a(const char *str)
+int32_t parseInt8a(const char *input)
 {
-	// TODO check length
-	const uint32_t idx1 = *(const uint32_t *)&str[0];
-	const uint32_t idx2 = *(const uint32_t *)&str[4];
+	char buffer[32] = {0};
 
-	const int32_t high = table32[idx1];
-	const int32_t low  = table32[idx2];
-	return (int32_t)(high * 10000) + (int32_t)low;
+	// fill with spaces
+	memset(buffer, ' ', sizeof(buffer));
+
+	size_t len = strlen(input);
+	if (len > 8) len = 8;  // truncate to 8 max
+
+	// Right-align copy to last 8 positions
+	memcpy(&buffer[24], input, len);
+
+	// Now parse the last 8 bytes
+	const uint32_t idx1 = *(uint32_t *)&buffer[24];
+	const uint32_t idx2 = *(uint32_t *)&buffer[28];
+
+	const uint32_t high = (uint32_t) table32[idx1];
+	const uint32_t low  = (uint32_t) table32[idx2];
+	return (high * 10000) + low;
 }
 
 int main()
