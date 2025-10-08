@@ -57,16 +57,16 @@ void init_table16() {
 		exit(1);
 	}
 
-	const char ALLOWED_CHARS[] = { '+', '-', ' ', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 0 };
+	const char ALLOWED_CHARS[] = { '+', ' ', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 0 };
 	const int  ALLOWED_COUNT = sizeof(ALLOWED_CHARS);
 
 	char key[5] = {0};
 
 	// Iterate only allowed chars per position (12^4 = 20,736 entries)
 	for (int i0 = 0; i0 < ALLOWED_COUNT; ++i0)
-	for (int i1 = 2; i1 < ALLOWED_COUNT; ++i1)
-	for (int i2 = 2; i2 < ALLOWED_COUNT; ++i2)
-	for (int i3 = 2; i3 < ALLOWED_COUNT; ++i3)
+	for (int i1 = 1; i1 < ALLOWED_COUNT; ++i1)
+	for (int i2 = 1; i2 < ALLOWED_COUNT; ++i2)
+	for (int i3 = 1; i3 < ALLOWED_COUNT; ++i3)
 	{
 		key[0] = ALLOWED_CHARS[i0];
 		key[1] = ALLOWED_CHARS[i1];
@@ -93,7 +93,9 @@ int32_t parseInt8b(const char *input)
 	if (len > 8) len = 8;  // truncate to 8 max
 
 	// Right-align copy to last 8 positions
-	memcpy(&buffer[24], input, len);
+	memcpy(&buffer[32-len], input, len);
+
+	printf("INPUT[%s], BUFFER[%s]\n", input, buffer);
 
 	// Now parse the last 8 bytes
 	const uint32_t idx1 = *(uint32_t *)&buffer[24];
@@ -116,6 +118,13 @@ int main()
 		"99999999", // 99999999
 		"+0012345", // invalid 7-char, you should pad to 8 chars
 		"  +12345", // spaces + plus
+
+		// Still broken
+		"+1",
+		"+2",
+		"+0002",
+		"-0",
+
 		NULL
 	};
 
