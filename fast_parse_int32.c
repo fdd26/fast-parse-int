@@ -11,60 +11,84 @@ static int32_t *table = NULL;
 // Parse a 4-character string to int, with rules:
 // skip leading spaces, optional '+', then digits, stop at non-digit
 // If invalid, return 0
-int parse_4digits(const char *s) {
+int parse_4digits(const char *s)
+{
 	int i = 0;
-	while (i < 4 && isspace((unsigned char)s[i])) i++; // skip leading spaces
 
-	if (i < 4 && s[i] == '+') i++; // optional '+'
+	// skip leading spaces
+	while ((i < 4) && isspace((unsigned char)s[i]))
+	{ ++i; }
+
+	// optional '+'
+	if ((i < 4) && (s[i] == '+'))
+	{ ++i; }
 
 	int val = 0;
 	int digits_found = 0;
-	for (; i < 4; i++) {
-		if (s[i] >= '0' && s[i] <= '9') {
-			val = val * 10 + (s[i] - '0');
-			digits_found++;
-		} else if (s[i] == ' ') {
+	for (; i < 4; ++i)
+	{
+		const char ch = s[i];
+		if (ch >= '0' && ch <= '9')
+		{
+			val = (val * 10) + (ch - '0');
+			++digits_found;
+		}
+		else if (ch == ' ')
+		{
 			// trailing spaces allowed
 			continue;
-		} else {
+		}
+		else
+		{
 			// invalid char
 			return 0;
 		}
 	}
+
 	return digits_found ? val : 0;
 }
 
-void init_table() {
+void init_table()
+{
+	// ~4 GiB RAM
 	table = calloc(TABLE_SIZE, sizeof(int32_t));
-	if (!table) {
+
+	if (!table)
+	{
 		fprintf(stderr, "calloc failed\n");
 		exit(1);
 	}
 
 	char key[5] = {0}; // 4 chars + null
 
+	// TODO optimize
 	// Brute force all 4-byte combinations
-	for (uint64_t i = 0; i < TABLE_SIZE; i++) {
-		key[0] = (char)(i & 0xFF);
-		key[1] = (char)((i >> 8) & 0xFF);
+	for (uint64_t i = 0; i < TABLE_SIZE; ++i)
+	{
+		key[0] = (char)((i      ) & 0xFF);
+		key[1] = (char)((i >>  8) & 0xFF);
 		key[2] = (char)((i >> 16) & 0xFF);
 		key[3] = (char)((i >> 24) & 0xFF);
 
 		table[i] = parse_4digits(key);
 	}
+
 	printf("Table initialized.\n");
 }
 
-int32_t parseInt8(const char *str) {
-	uint32_t idx1 = *(uint32_t *)&str[0];
-	uint32_t idx2 = *(uint32_t *)&str[4];
+int32_t parseInt8(const char *str)
+{
+	// TODO check length
+	const uint32_t idx1 = *(const uint32_t *)&str[0];
+	const uint32_t idx2 = *(const uint32_t *)&str[4];
 
-	int32_t high = table[idx1];
-	int32_t low = table[idx2];
-	return high * 10000 + low;
+	const int32_t high = table[idx1];
+	const int32_t low  = table[idx2];
+	return (high * 10000) + low;
 }
 
-int main() {
+int main()
+{
 	init_table();
 
 	const char *tests[] = {
@@ -78,16 +102,20 @@ int main() {
 		NULL
 	};
 
-	for (int i = 0; tests[i]; i++) {
+	for (int i = 0; tests[i]; ++i)
+	{
 		char input[9] = { ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ' };
-		size_t len = strlen(tests[i]);
+
+		const size_t len = strlen(tests[i]);
+
 		// Copy input padded with spaces on the right (or left)
 		// Here right-pad with spaces:
-		for (size_t j = 0; j < len && j < 8; j++) {
+		for (size_t j = 0; j < len && j < 8; ++j)
+		{
 			input[j] = tests[i][j];
 		}
 
-		int32_t val = parseInt8(input);
+		const int32_t val = parseInt8(input);
 		printf("parseInt8(\"%s\") = %d\n", tests[i], val);
 	}
 
